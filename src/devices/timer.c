@@ -20,6 +20,25 @@
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
 
+/* Cada espera fica na pilha da thread ate o semaforo ser liberado. */
+struct timer_waiter
+  {
+    int64_t wake_tick;
+    struct semaphore done;
+    struct list_elem elem;
+  };
+
+static struct list sleepers;
+
+static bool
+wakes_before (const struct list_elem *a, const struct list_elem *b,
+              void *aux UNUSED)
+{
+  const struct timer_waiter *first = list_entry (a, struct timer_waiter, elem);
+  const struct timer_waiter *second = list_entry (b, struct timer_waiter, elem);
+  return first->wake_tick < second->wake_tick;
+}
+
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
 static unsigned loops_per_tick;
@@ -35,6 +54,7 @@ static void real_time_delay (int64_t num, int32_t denom);
 void
 timer_init (void) 
 {
+  list_init (&sleepers);
   pit_configure_channel (0, 2, TIMER_FREQ);
   intr_register_ext (0x20, timer_interrupt, "8254 Timer");
 }
@@ -87,13 +107,24 @@ timer_elapsed (int64_t then)
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
    be turned on. */
 void
-timer_sleep (int64_t ticks) 
+timer_sleep (int64_t duration)
 {
-  int64_t start = timer_ticks ();
+  struct timer_waiter waiter;
+  enum intr_level old_level;
 
   ASSERT (intr_get_level () == INTR_ON);
-  while (timer_elapsed (start) < ticks) 
-    thread_yield ();
+  if (duration <= 0)
+    return;
+
+  sema_init (&waiter.done, 0);
+  old_level = intr_disable ();
+  /* Erro proposital da etapa 1: reduz o prazo pedido pela metade.
+     Mantido para demonstrar a falha no teste alarm-minimum. */
+  waiter.wake_tick = ticks + duration / 2;
+  list_insert_ordered (&sleepers, &waiter.elem, wakes_before, NULL);
+  /* A insercao e o bloqueio devem ser atomicos em relacao ao timer. */
+  sema_down (&waiter.done);
+  intr_set_level (old_level);
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -172,6 +203,15 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
+  while (!list_empty (&sleepers))
+    {
+      struct timer_waiter *waiter;
+      waiter = list_entry (list_front (&sleepers), struct timer_waiter, elem);
+      if (waiter->wake_tick > ticks)
+        break;
+      list_pop_front (&sleepers);
+      sema_up (&waiter->done);
+    }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
