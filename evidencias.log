@@ -100,3 +100,72 @@ Translation of call stack:
 0xc00207e2: run_task (.../../../threads/init.c:294)
 0xc00208c1: run_actions (.../../../threads/init.c:344)
 0xc00203c0: pintos_init (.../../../threads/init.c:134)
+
+
+=== Correcao do prazo de espera — 2026-09-19 ===
+Execucao no Ubuntu/WSL com QEMU apos substituir duration / 2 por duration.
+As execucoes anteriores acima foram preservadas como registro.
+Comando no diretorio src/threads/build, com src/utils no PATH:
+make tests/threads/alarm-minimum.result tests/threads/alarm-single.result
+
+=== alarm-minimum ===
+qemu-system-i386 -device isa-debug-exit -drive format=raw,media=disk,index=0,file=/tmp/MHzqEqyGjk.dsk -m 4 -net none -nographic -monitor null
+c[?7l[2J[0mSeaBIOS (version 1.17.0-debian-1.17.0-1ubuntu1)
+Booting from Hard Disk...
+PPiinnttooss  hhddaa1
+1
+LLooaaddiinngg.......................
+Kernel command line: -q run alarm-minimum
+Pintos booting with 3,968 kB RAM...
+367 pages available in kernel pool.
+367 pages available in user pool.
+Calibrating timer...  127,180,800 loops/s.
+Boot complete.
+Executing 'alarm-minimum':
+(alarm-minimum) begin
+(alarm-minimum) Solicitado: 100 ticks; observado: 100 ticks
+(alarm-minimum) PASS
+(alarm-minimum) end
+Execution of 'alarm-minimum' complete.
+Timer: 126 ticks
+Thread: 100 idle ticks, 26 kernel ticks, 0 user ticks
+Console: 466 characters output
+Keyboard: 0 keys pressed
+Powering off...
+
+Resultado: PASS
+
+=== alarm-single ===
+qemu-system-i386 -device isa-debug-exit -drive format=raw,media=disk,index=0,file=/tmp/xwRnjw1dRv.dsk -m 4 -net none -nographic -monitor null
+c[?7l[2J[0mSeaBIOS (version 1.17.0-debian-1.17.0-1ubuntu1)
+Booting from Hard Disk...
+PPiinnttooss  hhddaa1
+1
+LLooaaddiinngg.......................
+Kernel command line: -q run alarm-single
+Pintos booting with 3,968 kB RAM...
+367 pages available in kernel pool.
+367 pages available in user pool.
+Calibrating timer...  130,867,200 loops/s.
+Boot complete.
+Executing 'alarm-single':
+(alarm-single) begin
+(alarm-single) Creating 5 threads to sleep 1 times each.
+(alarm-single) Thread 0 sleeps 10 ticks each time,
+(alarm-single) thread 1 sleeps 20 ticks each time, and so on.
+(alarm-single) If successful, product of iteration count and
+(alarm-single) sleep duration will appear in nondescending order.
+(alarm-single) thread 0: duration=10, iteration=1, product=10
+(alarm-single) thread 1: duration=20, iteration=1, product=20
+(alarm-single) thread 2: duration=30, iteration=1, product=30
+(alarm-single) thread 3: duration=40, iteration=1, product=40
+(alarm-single) thread 4: duration=50, iteration=1, product=50
+(alarm-single) end
+Execution of 'alarm-single' complete.
+Timer: 274 ticks
+Thread: 250 idle ticks, 24 kernel ticks, 0 user ticks
+Console: 987 characters output
+Keyboard: 0 keys pressed
+Powering off...
+
+Resultado: PASS

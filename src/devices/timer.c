@@ -118,9 +118,8 @@ timer_sleep (int64_t duration)
 
   sema_init (&waiter.done, 0);
   old_level = intr_disable ();
-  /* Erro proposital da etapa 1: reduz o prazo pedido pela metade.
-     Mantido para demonstrar a falha no teste alarm-minimum. */
-  waiter.wake_tick = ticks + duration / 2;
+  /* Mantem a thread bloqueada ate completar o prazo solicitado. */
+  waiter.wake_tick = ticks + duration;
   list_insert_ordered (&sleepers, &waiter.elem, wakes_before, NULL);
   /* A insercao e o bloqueio devem ser atomicos em relacao ao timer. */
   sema_down (&waiter.done);
