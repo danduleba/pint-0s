@@ -10,6 +10,9 @@ demonstrar: all
 
 testar-basico: all
 	cd src/threads/build && PATH="$(CURDIR)/src/utils:$$PATH" $(MAKE) tests/threads/alarm-zero.result tests/threads/alarm-negative.result tests/threads/alarm-minimum.result
+	grep -qx PASS src/threads/build/tests/threads/alarm-zero.result
+	grep -qx PASS src/threads/build/tests/threads/alarm-negative.result
+	grep -qx PASS src/threads/build/tests/threads/alarm-minimum.result
 
 clean:
 	$(MAKE) -C src/threads clean

@@ -112,6 +112,7 @@ timer_sleep (int64_t duration)
   struct timer_waiter waiter;
   enum intr_level old_level;
 
+  ASSERT (!intr_context ());
   ASSERT (intr_get_level () == INTR_ON);
   if (duration <= 0)
     return;
