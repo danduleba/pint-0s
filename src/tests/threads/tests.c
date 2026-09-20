@@ -11,6 +11,7 @@ struct test
 
 static const struct test tests[] = 
   {
+    {"alarm-blocked", test_alarm_blocked},
     {"alarm-minimum", test_alarm_minimum},
     {"alarm-single", test_alarm_single},
     {"alarm-multiple", test_alarm_multiple},

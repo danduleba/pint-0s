@@ -1,4 +1,4 @@
-.PHONY: all clean demonstrar testar-basico testar-concorrencia
+.PHONY: all clean demonstrar testar-basico testar-concorrencia testar-alarmes
 
 all:
 	$(MAKE) -C src/utils setitimer-helper
@@ -23,3 +23,14 @@ testar-concorrencia: all
 	cd src/threads/build && PATH="$(CURDIR)/src/utils:$$PATH" $(MAKE) tests/threads/alarm-multiple.result tests/threads/alarm-simultaneous.result
 	grep -qx PASS src/threads/build/tests/threads/alarm-multiple.result
 	grep -qx PASS src/threads/build/tests/threads/alarm-simultaneous.result
+
+ALARMES = alarm-single alarm-multiple alarm-simultaneous alarm-zero \
+          alarm-negative alarm-minimum alarm-blocked
+RESULTADOS = $(addprefix tests/threads/,$(addsuffix .result,$(ALARMES)))
+
+testar-alarmes: all
+	cd src/threads/build && PATH="$(CURDIR)/src/utils:$$PATH" $(MAKE) $(RESULTADOS)
+	@for teste in $(ALARMES); do \
+	  grep -qx PASS src/threads/build/tests/threads/$$teste.result || exit 1; \
+	  printf '%s: PASS\n' "$$teste"; \
+	done
