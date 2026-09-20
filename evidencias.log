@@ -395,3 +395,20 @@ Thread: 100 idle ticks, 26 kernel ticks, 0 user ticks
 Console: 406 characters output
 Keyboard: 0 keys pressed
 Powering off...
+
+
+=== Validacao da entrega — 2026-09-20 ===
+VALIDACAO DA ENTREGA EM BASE LIMPA
+Comando: make validar
+
+alarm-single: PASS
+alarm-multiple: PASS
+alarm-simultaneous: PASS
+alarm-zero: PASS
+alarm-negative: PASS
+alarm-minimum: PASS
+alarm-blocked: PASS
+
+7 testes aprovados.
+14 arquivos novos ou alterados na pasta de entrega.
+Sem binarios e sem a base original no pacote.

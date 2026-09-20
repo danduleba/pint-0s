@@ -1,4 +1,4 @@
-.PHONY: all clean demonstrar testar-basico testar-concorrencia testar-alarmes
+.PHONY: all clean demonstrar testar-basico testar-concorrencia testar-alarmes validar
 
 all:
 	$(MAKE) -C src/utils setitimer-helper
@@ -34,3 +34,8 @@ testar-alarmes: all
 	  grep -qx PASS src/threads/build/tests/threads/$$teste.result || exit 1; \
 	  printf '%s: PASS\n' "$$teste"; \
 	done
+
+# Recompila do zero para nao reutilizar resultados de execucoes anteriores.
+validar:
+	$(MAKE) clean
+	$(MAKE) testar-alarmes
