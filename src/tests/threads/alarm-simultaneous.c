@@ -65,6 +65,10 @@ test_sleep (int thread_cnt, int iterations)
   /* Wait long enough for all the threads to finish. */
   timer_sleep (100 + iterations * 10 + 100);
 
+  /* Confere se todas as threads concluiram todas as esperas. */
+  if (test.output_pos - output != iterations * thread_cnt)
+    fail ("Nem todas as threads completaram as esperas simultaneas.");
+
   /* Print completion order. */
   msg ("iteration 0, thread 0: woke up after %d ticks", output[0]);
   for (i = 1; i < test.output_pos - output; i++) 

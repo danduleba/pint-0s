@@ -1,4 +1,4 @@
-.PHONY: all clean demonstrar testar-basico
+.PHONY: all clean demonstrar testar-basico testar-concorrencia
 
 all:
 	$(MAKE) -C src/utils setitimer-helper
@@ -14,3 +14,9 @@ testar-basico: all
 clean:
 	$(MAKE) -C src/threads clean
 	$(MAKE) -C src/utils clean
+
+# Confere repeticoes de espera e threads com o mesmo prazo.
+testar-concorrencia: all
+	cd src/threads/build && PATH="$(CURDIR)/src/utils:$$PATH" $(MAKE) tests/threads/alarm-multiple.result tests/threads/alarm-simultaneous.result
+	grep -qx PASS src/threads/build/tests/threads/alarm-multiple.result
+	grep -qx PASS src/threads/build/tests/threads/alarm-simultaneous.result
